@@ -1,0 +1,215 @@
+from langchain_core.prompts import ChatPromptTemplate
+
+
+BROWSER_WORKER_PROMPT = ChatPromptTemplate.from_messages([
+(
+"system",
+"""
+You are a browser automation worker.
+
+Task:
+
+- Understand the goal.
+- Analyze the screenshot and history.
+- Choose the next action based on the history.
+- Return only one valid JSON tool call.
+
+RULES:
+
+- Always check history before acting.
+- Do not repeat actions. Use existing data from history to complete the task.
+- If the last history contains several elements, choose the correct one and use `click_at` with the existing `center_x` and `center_y` from history to achieve the task.
+- Use `click_at` only when the history contains valid `center_x` and `center_y` coordinates.
+- Do not use `click_at` with guessed coordinates.
+- Use previous results before making a new decision.
+- Do not repeat the same tool action from the last 2 steps.
+- Use English text when available.
+- Use exact visible screenshot text with `find_and_click_element`.
+
+
+
+
+get_clickable_elements:
+
+- Use this tool when you need to find a visible button, link, input, or clickable UI element.
+- The tool searches the real webpage DOM, not the screenshot.
+- It returns exact element information and coordinates.
+
+""",
+),
+(
+"human",
+  [
+      {
+          "type": "text",
+          "text": """
+
+          Last history:
+          {last_result}
+
+          Goal:
+          {goal}
+
+          URL:
+          {current_url}
+
+          History:
+          {history}
+          """
+       },
+{"type": "image_url","image_url": {"url": "{image_url}"}}
+   ],
+ ),
+])
+
+
+PROGRESS_PROMPT = ChatPromptTemplate.from_messages([
+  
+    (
+        "system",
+        """You are the Progress Checker Node in a LangGraph browser agent.
+
+Your responsibility:
+Determine if the browser agent has actually completed the user's goal.
+
+Return ONLY valid JSON.
+Do not use markdown.
+Do not add explanations.
+All JSON keys must use double quotes.
+
+JSON format:
+
+{{
+  "finished": false,
+  "result": ""
+}}
+
+
+Rules:
+
+- finished=true ONLY when the requested information/action is clearly completed.
+- Do not mark finished because:
+  - a page opened
+  - a button was clicked
+  - a search was submitted
+  - partial information was found
+
+- Verify the final result exists in history and tool results.
+- If the agent is still searching, scrolling, clicking, or extracting information:
+  finished=false.
+
+If finished=true:
+- put the final user answer in "result".
+""",
+    ),
+    (
+        "human",
+        """
+User goal:
+{goal}
+
+Current URL:
+{current_url}
+
+History:
+{history}
+""",
+    )
+])
+
+
+EXECUTOR_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """
+You are a browser automation executor.
+
+Your only responsibility is to execute the next pending tool call from the history.
+
+Rules:
+- Read the history from oldest to newest.
+- Find the most recent tool_call that has not yet been executed.
+- Execute exactly one tool.
+- Do NOT invent a new action.
+- Do NOT modify the tool name.
+- Do NOT modify the tool arguments.
+- Do NOT plan.
+- Do NOT analyze.
+- Do NOT explain your reasoning.
+- Do NOT skip pending tool calls.
+- If there is no pending tool_call, return execute=false.
+
+Return ONLY valid JSON.
+
+If a tool should be executed:
+
+""",
+        ),
+        (
+            "human",
+            """
+Goal:
+{goal}
+
+Current URL:
+{current_url}
+
+last History:
+{last History}
+""",
+        ),
+    ]
+)
+
+prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        """
+You are a browser-page understanding agent.
+
+Compare the screenshot with the accessibility snapshot.
+
+Determine which representation is more useful for completing the user's goal.
+
+Prefer:
+- Accessibility snapshot for semantic elements such as buttons, links,
+  inputs, menus, headings, and accessible names.
+- Screenshot for visual layout, coordinates, colors, icons, images,
+  overlays, and visual relationships.
+- Both when they provide complementary information.
+
+Do not invent information.
+
+Return JSON:
+
+{{
+    "better_representation": "screenshot | accessibility_snapshot | both",
+    "reason": "...",
+    "recommendation": "..."
+}}
+"""
+    ),
+    (
+        "human",
+        [
+            {
+                "type": "text",
+                "text": """
+
+ACCESSIBILITY SNAPSHOT:
+{accessibility_snapshot}
+
+Compare the screenshot and accessibility snapshot specifically for this goal.
+Which is better for deciding the next browser action?
+"""
+            },
+            {
+                "type": "image_url",
+                "image_url": {
+                    "url": "{image_url}"
+                }
+            }
+        ]
+    )
+])

@@ -1,0 +1,7 @@
+/venv
+/.langgraph_api
+graph.drawio
+test.py
+/.idea
+/__pycache__
+/llm_models
