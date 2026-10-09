@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 class BrowserLifecycle:
     """Manages browser lifecycle (launch, context, page, close).
-    
     Responsibilities:
     - Launch browser with proper configuration
     - Create browser context with stealth settings
@@ -49,14 +48,9 @@ class BrowserLifecycle:
             timezone_id="America/New_York",
         )
         self._page = self._context.new_page()
-        
-        
         # Human-like delay before navigation
-        delay = random.uniform(1.0, 3.0)
-        logger.info(f"Waiting {delay:.1f}s before navigation (human-like delay)")
+        delay = random.uniform(0.5, 2.0)
         self._page.wait_for_timeout(int(delay * 1000))
-        
-        logger.info(f"Navigating to {self.url}")
         self._page.goto(self.url, wait_until="domcontentloaded", timeout=30000)
         self._last_url = self._page.url
     

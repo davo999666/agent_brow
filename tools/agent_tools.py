@@ -65,7 +65,6 @@ def type_text(text: str, submit: bool = False) -> str:
 
     return "Typed text" + (" and submitted" if submit else "")
 
-
 @tool
 def scroll_page(amount: int = 500) -> str:
     """
@@ -80,7 +79,6 @@ def scroll_page(amount: int = 500) -> str:
 
     return f"Scrolled {amount}px"
 
-
 @tool
 def go_to_url(url: str) -> str:
     """
@@ -94,7 +92,6 @@ def go_to_url(url: str) -> str:
 
     return f"Opened {url}"
 
-
 @tool
 def go_back() -> str:
     """
@@ -106,7 +103,6 @@ def go_back() -> str:
     page.go_back(wait_until="load")
 
     return "Navigated back to the previous page."
-
 
 @tool
 def click_element(element: dict) -> dict:
@@ -287,8 +283,6 @@ def click_element(element: dict) -> dict:
             "error": str(e)
         }
 
-
-
 @tool
 def press_key(key: str) -> dict:
     """
@@ -407,17 +401,12 @@ def find_and_click_element(search: str):
         }
 
 browser_tools = [
-    # Coordinate fallback
-    # click_at,
+
     type_text,
-
     find_and_click_element,
-
-    # click_element,
     press_key,
-
-    # Navigation
     scroll_page,
     go_to_url,
     go_back,
+    
 ]

@@ -5,9 +5,7 @@ def executor_node(state: dict):
 
     history = state.get("history", [])
 
-    response = executor_chain.invoke({
-    "last_history" : history[-1],
-    })
+    response = executor_chain.invoke({ "last_history" : history[-1] })
     tool_calls = response.tool_calls
 
     if tool_calls:

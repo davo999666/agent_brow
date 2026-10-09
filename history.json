@@ -122,15 +122,26 @@
       "tool_called": true,
       "tool_name": "find_and_click_element",
       "tool_args": {
-        "search": "City / Area"
+        "search": "By default"
       },
       "reason": ""
     },
     "result": {
       "success": true,
-      "action": "return_elements",
-      "count": 0,
-      "elements": []
+      "action": "auto_click",
+      "element": {
+        "tag": "button",
+        "text": "By default",
+        "center_x": 519,
+        "center_y": 590
+      },
+      "click_result": {
+        "success": true,
+        "clicked_at": {
+          "x": 519,
+          "y": 590
+        }
+      }
     }
   },
   {
@@ -138,35 +149,13 @@
     "current_url": "",
     "action": {
       "tool_called": true,
-      "tool_name": "find_and_click_element",
+      "tool_name": "type_text",
       "tool_args": {
-        "search": "City / Area"
+        "text": "50000",
+        "submit": true
       },
       "reason": ""
     },
-    "result": {
-      "success": true,
-      "action": "return_elements",
-      "count": 0,
-      "elements": []
-    }
-  },
-  {
-    "index": 6,
-    "current_url": "",
-    "action": {
-      "tool_called": true,
-      "tool_name": "find_and_click_element",
-      "tool_args": {
-        "search": "City / Area"
-      },
-      "reason": ""
-    },
-    "result": {
-      "success": true,
-      "action": "return_elements",
-      "count": 0,
-      "elements": []
-    }
+    "result": "Typed text and submitted"
   }
 ]
