@@ -1,6 +1,7 @@
 from tools.browser_manager import get_browser_lifecycle
-from tools.utils.element_utils import  get_locator, show_click_marker
+from tools.utils.element_utils import  show_click_marker
 from langchain_core.tools import tool
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 
 @tool
@@ -48,15 +49,113 @@ def click_at(x, y) -> dict:
         }
 
 @tool
-def type_text(text: str, submit: bool = False) -> str:
+def close_modal() -> dict:
     """
-    Type text into the currently focused field. Optionally submit with Enter.
+    Close the currently visible modal or dialog.
+
+    Use when a popup blocks interaction with the page.
+    Do not use to confirm, submit, or accept a dialog.
     """
 
     browser = get_browser_lifecycle()
     page = browser.get_page()
 
-    page.keyboard.type(text)
+    modal_selector = (
+        '[role="dialog"], '
+        '[aria-modal="true"], '
+        '.modal.show, '
+        '[class*="modal-content"]'
+    )
+
+    modal = page.locator(modal_selector).filter(visible=True).last
+
+    def modal_closed():
+        try:
+            return not modal.is_visible()
+        except Exception:
+            return True
+
+    try:
+        if modal.count() == 0:
+            return {
+                "success": False,
+                "reason": "No visible modal found"
+            }
+
+        # 1. Try close buttons inside modal
+        close_selectors = [
+            'button[aria-label*="close" i]',
+            'button[title*="close" i]',
+            'button[class*="close" i]',
+            '[role="button"][aria-label*="close" i]',
+            'button:has(svg.lucide-x)',
+            'button:has(svg[class*="close"])',
+        ]
+
+        for selector in close_selectors:
+            button = modal.locator(selector).first
+
+            if button.count() > 0 and button.is_visible():
+                button.click(timeout=2000)
+
+                if modal_closed():
+                    return {
+                        "success": True,
+                        "method": "close_button"
+                    }
+
+        # 2. Try Escape
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(300)
+
+        if modal_closed():
+            return {
+                "success": True,
+                "method": "escape"
+            }
+
+        return {
+            "success": False,
+            "reason": "Could not close modal automatically"
+        }
+
+    except PlaywrightTimeoutError:
+        return {
+            "success": False,
+            "reason": "Timed out while closing modal"
+        }
+
+@tool
+def type_text(text: str, submit: bool = False) -> str:
+    """
+    Type text into the currently focused input or textarea.
+    Optionally press Enter to submit.
+    """
+
+    browser = get_browser_lifecycle()
+    page = browser.get_page()
+
+    focused = page.evaluate("""
+        () => {
+            const el = document.activeElement;
+
+            if (!el) return null;
+
+            return {
+                tag: el.tagName.toLowerCase(),
+                editable: (
+                    el.tagName === "INPUT" ||
+                    el.tagName === "TEXTAREA" ||
+                    el.isContentEditable
+                )
+            };
+        }
+    """)
+
+    if not focused or not focused["editable"]:
+        return "ERROR: No editable input is focused. Click an input field first."
+
+    page.keyboard.insert_text(text)
 
     if submit:
         page.keyboard.press("Enter")
@@ -136,61 +235,31 @@ def click_element(element: dict) -> dict:
 
         # aria
         if aria_label:
-            locators.append(
-                page.get_by_label(
-                    aria_label,
-                    exact=True
-                )
-            )
+            locators.append(page.get_by_label(  aria_label,  exact=True ))
 
 
         # placeholder
         if placeholder:
-            locators.append(
-                page.get_by_placeholder(
-                    placeholder,
-                    exact=True
-                )
-            )
+            locators.append( page.get_by_placeholder( placeholder,  exact=True) )
 
 
         # class
         if class_name:
-            css_class = ".".join(
-                class_name.split()
-            )
-
-            locators.append(
-                page.locator(
-                    f".{css_class}"
-                )
-            )
+            css_class = ".".join( class_name.split() )
+            locators.append( page.locator( f".{css_class}" ) )
 
 
         # tag + text
         if text:
             if tag:
-                locators.append(
-                    page.locator(
-                        f"{tag}:has-text('{text}')"
-                    )
-                )
+                locators.append( page.locator( f"{tag}:has-text('{text}')" ) )
 
-            locators.append(
-                page.get_by_text(
-                    text,
-                    exact=True
-                )
-            )
+            locators.append(page.get_by_text( text, exact=True ))
 
 
         # href only if useful
         if href and href != "#":
-            locators.append(
-                page.locator(
-                    f"[href*='{href}']"
-                )
-            )
+            locators.append( page.locator(  f"[href*='{href}']" ) )
 
 
         target = None
@@ -229,9 +298,7 @@ def click_element(element: dict) -> dict:
 
         # If current element is not clickable,
         # search clickable parent
-        tag_name = target.evaluate(
-            "(e)=>e.tagName.toLowerCase()"
-        )
+        tag_name = target.evaluate( "(e)=>e.tagName.toLowerCase()" )
 
 
         if tag_name not in [
@@ -240,9 +307,7 @@ def click_element(element: dict) -> dict:
             "input"
         ]:
 
-            parent = target.locator(
-                "xpath=ancestor::a | ancestor::button"
-            )
+            parent = target.locator(  "xpath=ancestor::a | ancestor::button" )
 
 
             if parent.count() > 0:
@@ -250,9 +315,7 @@ def click_element(element: dict) -> dict:
 
 
 
-        target.scroll_into_view_if_needed(
-            timeout=2000
-        )
+        target.scroll_into_view_if_needed( timeout=2000 )
 
 
         try:
@@ -401,7 +464,7 @@ def find_and_click_element(search: str):
         }
 
 browser_tools = [
-
+    close_modal,
     type_text,
     find_and_click_element,
     press_key,

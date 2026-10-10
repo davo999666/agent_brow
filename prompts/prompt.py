@@ -14,8 +14,11 @@ Task:
 - Choose the next action based on the history.
 - Return only one valid JSON tool call.
 
-RULES:
+STRICT RULE:
+- ALWAYS use English text when an English option is available.
 
+RULES:
+- ALWAYS inspect a modal before closing it; use it if relevant to the task
 - Always check history before acting.
 - Do not repeat actions. Use existing data from history to complete the task.
 - If the last history contains several elements, choose the correct one and use `click_at` with the existing `center_x` and `center_y` from history to achieve the task.
@@ -23,10 +26,7 @@ RULES:
 - Do not use `click_at` with guessed coordinates.
 - Use previous results before making a new decision.
 - Do not repeat the same tool action from the last 2 steps.
-- Use English text when available.
 - Use exact visible screenshot text with `find_and_click_element`.
-
-
 
 
 get_clickable_elements:
@@ -57,7 +57,7 @@ get_clickable_elements:
           {history}
           """
        },
-{"type": "image_url","image_url": {"url": "{image_url}"}}
+       {"type": "image_url","image_url": {"url": "{image_url}"}}
    ],
  ),
 ])

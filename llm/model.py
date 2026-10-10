@@ -7,8 +7,8 @@ def get_local_llm():
     return ChatOpenAI(
         base_url="http://127.0.0.1:1234/v1",
         api_key="lm-studio",
-        model="qwen3.5-4b@q4_k_m",
-        temperature=0.1,
+        model="qwen3.5-4b@q8_0",
+        temperature=0.3,
         streaming=True,
         stream_usage=True,
     )
