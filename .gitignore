@@ -4,5 +4,6 @@ graph.drawio
 test.py
 /.idea
 /__pycache__
-/llm_models
+llm_model/
 history.json
+llama_cpp_server

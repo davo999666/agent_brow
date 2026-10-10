@@ -24,7 +24,7 @@ def print_tokens(chain_name):
 
 
 
-llm = get_local_llm()
+llm = llm = get_local_llm(vision=True)
 llm_with_tools = llm.bind_tools(browser_tools)
 
 progress_chain = PROGRESS_PROMPT | llm | RunnableLambda(print_tokens("progress_chain")) | JsonOutputParser()

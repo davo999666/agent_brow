@@ -1,7 +1,5 @@
-# Core Dependencies
 langgraph
 playwright
 langchain-openai
-langchain-community
-llama-cpp-python
+
 

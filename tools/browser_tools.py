@@ -4,8 +4,6 @@ import base64
 from tools.browser_manager import get_browser_lifecycle
 
 
-
-
 def take_screenshot() -> str:
     """
     Take a screenshot of the current browser page.
