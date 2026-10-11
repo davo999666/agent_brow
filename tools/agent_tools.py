@@ -1,4 +1,4 @@
-from tools.browser_manager import get_browser_lifecycle
+from browser.browser_manager import get_browser_lifecycle
 from tools.utils.element_utils import  show_click_marker
 from langchain_core.tools import tool
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError

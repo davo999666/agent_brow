@@ -6,15 +6,10 @@ from urllib.parse import urlparse
 from langchain_core.callbacks import BaseCallbackHandler
 
 from graphs.main_graph import graph
-from tools.browser_lifecycle import BrowserLifecycle
-from tools.browser_manager import set_browser_lifecycle
-from tools.desktop_panel import AgentPanel
-from tools.agent_control import (
-    stop_agent,
-    resume_agent,
-    check_agent_stop,
-    AgentStopped,
-)
+from browser.browser_lifecycle import BrowserLifecycle
+from browser.browser_manager import set_browser_lifecycle
+from desktop.desktop_panel import AgentPanel
+from tools.agent_control import ( stop_agent, resume_agent, check_agent_stop, AgentStopped)
 from llm.model import stop_local_llm
 
 
@@ -89,19 +84,10 @@ def main():
     # -----------------------------------
 
     def agent_worker():
-        browser = BrowserLifecycle(
-            url="about:blank",
-            headless=False,
-        )
-
+        browser = BrowserLifecycle( url="about:blank", headless=False )
         try:
             browser.start()
             set_browser_lifecycle(browser)
-
-            print(
-                "PLAYWRIGHT THREAD:",
-                threading.get_ident()
-            )
 
             panel.emit("status", "Browser ready")
 
@@ -132,32 +118,19 @@ def main():
 
                             check_agent_stop()
 
-                            page.goto(
-                                domain,
-                                wait_until="domcontentloaded",
-                            )
+                            page.goto( domain, wait_until="domcontentloaded" )
 
                     check_agent_stop()
 
                     panel.emit("status", "Agent working...")
 
                     config = {
-                        "configurable": {
-                            "thread_id": "browser_session_1"
-                        },
+                        "configurable": { "thread_id": "browser_session_1"},
                         "recursion_limit": 100,
-                        "callbacks": [
-                            PanelStreamingHandler(panel)
-                        ],
+                        "callbacks": [ PanelStreamingHandler(panel) ],
                     }
 
-                    result = graph.invoke(
-                        {
-                            "goal": prompt,
-                            "start_url": page.url,
-                        },
-                        config=config,
-                    )
+                    result = graph.invoke( { "goal": prompt,  "start_url": page.url }, config=config )
 
                     check_agent_stop()
 
@@ -184,10 +157,7 @@ def main():
                     tasks.task_done()
 
         except Exception as error:
-            panel.emit(
-                "error",
-                f"Browser startup failed: {error}"
-            )
+            panel.emit( "error",  f"Browser startup failed: {error}" )
 
         finally:
             try:
@@ -198,11 +168,7 @@ def main():
     # -----------------------------------
     # Start Browser Worker
     # -----------------------------------
-
-    worker = threading.Thread(
-        target=agent_worker,
-        daemon=False,
-    )
+    worker = threading.Thread( target=agent_worker, daemon=False )
     worker.start()
 
     try:

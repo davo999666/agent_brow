@@ -1,6 +1,6 @@
 from chains.chain import browser_worker_chain
 
-from tools.browser_tools import take_screenshot
+from browser.browser_tools import take_screenshot
 
 
 def browser_worker_node(state: dict) -> dict:

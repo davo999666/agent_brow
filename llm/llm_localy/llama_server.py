@@ -20,7 +20,7 @@ class LlamaServer:
         self.model_path = None
         self.mmproj_path = None
 
-    def load_model( self, model_path: str,  mmproj_path: str | None = None, n_ctx: int = 8192,  n_gpu_layers: int = 99 ):
+    def load_model( self, model_path: str,  mmproj_path: str | None = None, n_ctx: int = 4096,  n_gpu_layers: int = 99 ):
         path = Path(model_path).resolve()
 
         if not path.is_file():

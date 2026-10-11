@@ -1,5 +1,5 @@
 from typing import Optional
-from tools.browser_lifecycle import BrowserLifecycle
+from browser.browser_lifecycle import BrowserLifecycle
 
 
 _browser_lifecycle: Optional[BrowserLifecycle] = None
