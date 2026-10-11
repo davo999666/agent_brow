@@ -26,6 +26,9 @@ def print_tokens(chain_name):
 
 
 
+
+
+
 llm = llm = get_local_llm(model_path=MODEL_PATH, mmproj_path=MMPROJ_PATH)
 llm_with_tools = llm.bind_tools(browser_tools)
 

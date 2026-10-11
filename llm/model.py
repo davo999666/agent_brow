@@ -33,7 +33,7 @@ def get_local_llm( model_path: str | Path, temperature: float = 0.3, mmproj_path
         model=path.name,
         temperature=temperature,
         streaming=True,
-        stream_usage=False,
+        stream_usage=True,
         max_tokens=1024,
     )
 
