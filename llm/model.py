@@ -1,3 +1,4 @@
+
 from pathlib import Path
 from langchain_openai import ChatOpenAI
 from llm.llm_localy.llama_server import LlamaServer
@@ -35,6 +36,15 @@ def get_local_llm( model_path: str | Path, temperature: float = 0.3, mmproj_path
         streaming=True,
         stream_usage=True,
         max_tokens=1024,
+    )
+
+
+def get_showui_llm(model_path: str | Path, mmproj_path: str | Path):
+    return get_local_llm(
+        model_path=model_path,
+        mmproj_path=mmproj_path,
+        temperature=0,
+        n_ctx=2048,
     )
 
 

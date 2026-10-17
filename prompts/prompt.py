@@ -18,6 +18,8 @@ STRICT RULE:
 - ALWAYS use English text when an English option is available.
 
 RULES:
+- Use ground_and_click with a clear description of the target.
+- After click_at, check the screenshot. The red dot shows your click location. Verify the result and adjust coordinates if needed.
 - ALWAYS inspect a modal before closing it; use it if relevant to the task
 - Always check history before acting.
 - Do not repeat actions. Use existing data from history to complete the task.
@@ -117,47 +119,3 @@ History:
     )
 ])
 
-
-EXECUTOR_PROMPT = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """
-You are a browser automation executor.
-
-Your only responsibility is to execute the next pending tool call from the history.
-
-Rules:
-- Read the history from oldest to newest.
-- Find the most recent tool_call that has not yet been executed.
-- Execute exactly one tool.
-- Do NOT invent a new action.
-- Do NOT modify the tool name.
-- Do NOT modify the tool arguments.
-- Do NOT plan.
-- Do NOT analyze.
-- Do NOT explain your reasoning.
-- Do NOT skip pending tool calls.
-- If there is no pending tool_call, return execute=false.
-
-Return ONLY valid JSON.
-
-If a tool should be executed:
-
-""",
-        ),
-        (
-            "human",
-            """
-Goal:
-{goal}
-
-Current URL:
-{current_url}
-
-last History:
-{last History}
-""",
-        ),
-    ]
-)

@@ -4,10 +4,23 @@ from langchain_core.tools import tool
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 
+
 @tool
 def click_at(x, y) -> dict:
     """
-    Click at screen coordinates.
+    Click at the specified coordinates within the 1280x720 browser viewport.
+    Analyze the screenshot and select the center of the target element.
+
+    Coordinate system:
+        - Origin (0, 0) is the top-left corner.
+        - X increases rightward (0–1279).
+        - Y increases downward (0–719).
+        - Use actual screenshot pixels, not normalized coordinates.
+        - Do not repeat a failed click at the same location.
+
+    Args:
+        x: Horizontal coordinate in pixels (0–1279).
+        y: Vertical coordinate in pixels (0–719).
     """
 
     browser = get_browser_lifecycle()
@@ -28,7 +41,7 @@ def click_at(x, y) -> dict:
         x = int(float(x))
         y = int(float(y))
 
-        show_click_marker(page, x, y, duration=3000)
+        show_click_marker(page, x, y, duration=4000)
 
         page.wait_for_timeout(500)
 
@@ -464,6 +477,7 @@ def find_and_click_element(search: str):
         }
 
 browser_tools = [
+    click_at,
     close_modal,
     type_text,
     find_and_click_element,

@@ -7,3 +7,4 @@ test.py
 llm_model/
 history.json
 llama_cpp_server
+screenshots

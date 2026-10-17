@@ -35,10 +35,8 @@ class BrowserLifecycle:
             channel="chrome",
             headless=self.headless,
             args=[
-                "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
-                "--window-size=1920,1080",
             ]
         )
         self._context = self._browser.new_context(

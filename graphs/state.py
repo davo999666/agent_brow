@@ -21,3 +21,4 @@ class MainGraphState(TypedDict, total=False):
     current_url: str
     history: List[HistoryItem]
     finished: bool
+    screenshot: str
